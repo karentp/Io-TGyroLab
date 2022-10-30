@@ -78,7 +78,7 @@ topic="v1/devices/me/telemetry"
 
 #Token de usuario donde se establece la conexion
 
-usuario="asd"
+usuario="H0BEo1567kp50xpIkme9"
 password=""
 
 
