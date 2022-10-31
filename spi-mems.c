@@ -21,20 +21,16 @@
 #define GYR_CTRL_REG1_BW_SHIFT	4
 #define GYR_CTRL_REG4		0x23
 #define GYR_CTRL_REG4_FS_SHIFT	4
-
 #define GYR_OUT_X_L		0x28
 #define GYR_OUT_X_H		0x29
-
 #define GYR_OUT_Y_L		0x2A
 #define GYR_OUT_Y_H		0x2B
-
 #define GYR_OUT_Z_L		0x2C
 #define GYR_OUT_Z_H		0x2D
-
-#define L3GD20_SENSITIVITY_250DPS  (0.00875F)      // Roughly 22/256 for fixed point match
-#define L3GD20_SENSITIVITY_500DPS  (0.0175F)       // Roughly 45/256
-#define L3GD20_SENSITIVITY_2000DPS (0.070F)        // Roughly 18/256
-#define L3GD20_DPS_TO_RADS         (0.017453293F)  // degress/s to rad/s multiplier
+#define L3GD20_SENSITIVITY_250DPS  (0.00875F)      
+#define L3GD20_SENSITIVITY_500DPS  (0.0175F)       
+#define L3GD20_SENSITIVITY_2000DPS (0.070F)        
+#define L3GD20_DPS_TO_RADS         (0.017453293F)  
 
 //Variables globales
 char *axes[] = { "X: ", "Y: ", "Z: " };
@@ -80,8 +76,8 @@ void spi_setup(void)
 static void my_usart_print_int(uint32_t usart, int32_t value)
 {
 	int8_t i;
-	int8_t nr_digits = 0;
 	char buffer[25];
+	int8_t nr_digits = 0;
 
 	if (value < 0) {
 		usart_send_blocking(usart, '-');
@@ -110,10 +106,10 @@ static void my_usart_print_int(uint32_t usart, int32_t value)
 int print_decimal(int);
 int print_decimal(int num)
 {
+	char	is_signed = 0;
+	int		len = 0;
 	int		ndx = 0;
 	char	buf[10];
-	int		len = 0;
-	char	is_signed = 0;
 
 	if (num < 0) 
     {
@@ -143,7 +139,8 @@ int print_decimal(int num)
 int main(void)
 {
 	int16_t vecs[3];
-	
+	int16_t baseline[3];
+
 	clock_setup();
 	console_setup(115200); //numero a ingresar en el archivo de comunicacion .py
     spi_setup();
@@ -169,9 +166,9 @@ int main(void)
 	while (1) {
         uint8_t temp;
         uint8_t who;
-        int16_t gyr_x;
-        int16_t gyr_y;
-        int16_t gyr_z;
+        int16_t ejeX;
+        int16_t ejeY;
+        int16_t ejeZ;
 
 		gpio_clear(GPIOC, GPIO1);             
 		spi_send(SPI5, GYR_WHO_AM_I | 0x80);
@@ -198,55 +195,53 @@ int main(void)
 		spi_send(SPI5, GYR_OUT_X_L | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		gyr_x=spi_read(SPI5);
+		ejeX=spi_read(SPI5);
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_X_H | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		gyr_x|=spi_read(SPI5) << 8;
+		ejeX|=spi_read(SPI5) << 8;
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_Y_L | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		gyr_y=spi_read(SPI5);
+		ejeY=spi_read(SPI5);
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_Y_H | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		gyr_y|=spi_read(SPI5) << 8;
+		ejeY|=spi_read(SPI5) << 8;
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_Z_L | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		gyr_z=spi_read(SPI5);
+		ejeZ=spi_read(SPI5);
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_Z_H | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		gyr_z|=spi_read(SPI5) << 8;
+		ejeZ|=spi_read(SPI5) << 8;
 		gpio_set(GPIOC, GPIO1);
 
-        gyr_x = gyr_x*L3GD20_SENSITIVITY_500DPS;
-        gyr_y = gyr_y*L3GD20_SENSITIVITY_500DPS;
-        gyr_z = gyr_z*L3GD20_SENSITIVITY_500DPS;
+        ejeX = ejeX*L3GD20_SENSITIVITY_500DPS;
+        ejeY = ejeY*L3GD20_SENSITIVITY_500DPS;
+        ejeZ = ejeZ*L3GD20_SENSITIVITY_500DPS;
 
-	    print_decimal(gyr_x); console_puts("\t");
-        print_decimal(gyr_y); console_puts("\t");
-        print_decimal(gyr_z); console_puts("\n");
+	    print_decimal(ejeX); console_puts("\t");
+        print_decimal(ejeY); console_puts("\t");
+        print_decimal(ejeZ); console_puts("\n");
 
-		int i;
-		for (i = 0; i < 80000; i++)    /* Wait a bit. */
-			__asm__("nop");
+		
 	}
 
 	return 0;
