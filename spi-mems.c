@@ -54,7 +54,7 @@ void spi_setup(void)
     //GPIO
 	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1);
     gpio_set(GPIOC, GPIO1);
-    gpio_mode_setup(GPIOF, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO_PUPD_PULLDOWN, GPIO7 | GPIO8 | GPIO9);   
+    gpio_mode_setup(GPIOF, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO7 | GPIO8 | GPIO9);   
 	gpio_set_af(GPIOF, GPIO_AF5, GPIO7 | GPIO8 | GPIO9);
 
     //Set de SPI inicializacion

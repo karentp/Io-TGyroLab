@@ -1,23 +1,21 @@
-"""
-El presente codigo corresponde a la comunicacion serial para visualizar  la información proveniente de la lectura de datos del giroscopio
-del Discovery Kit.
+import serial
+import time
+import csv
 
-La fuente de información corresponde a https://www.pythontutorial.net/python-basics/python-write-csv-file/
-
-"""
-
-import time, csv, serial
-
-#Comunicacion con la placa mediante el puerto ttyACM0
-lectura_serial = serial.Serial(port = '/dev/ttyACM0', baudrate = 15200,timeout=1)
-
+ser = serial.Serial(port = '/dev/ttyACM0', baudrate=115200, timeout=1) 
+print("Connected")
+data_rows = []
+encabezado = ['x', 'y', 'z']
+print(encabezado)
+print(ser)
 filename= open("Datos.csv",'w') 
 escritura_archivo = csv.writer(filename)
 
-while (True):
-	datos_escribir = lectura_serial.readline().decode().split(' ')
-	escritura_archivo.writerow(datos_escribir)
+while(1):
+    data = ser.readline().decode('latin-1').replace('\r', "").replace('\n', "")
+    data = data.split('\t')
 
-
-
-
+    if len(data) == 3:
+        print(data)
+        time.sleep(0.5)
+        escritura_archivo.writerow(data)

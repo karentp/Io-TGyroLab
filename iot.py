@@ -81,4 +81,27 @@ topic="v1/devices/me/telemetry"
 usuario="H0BEo1567kp50xpIkme9"
 password=""
 
+if usuario !="":
+   pass
+client.username_pw_set(usuario, password)
+client.connect(broker,port)           #establish connection
 
+while not client.connected_flag: #wait in loop
+   client.loop()
+   time.sleep(1)
+
+time.sleep(3)
+data=dict()
+
+fileRead = False
+while(not fileRead): #Hacemos un loop
+
+    data["X"] = "x"
+    data["Y"] = "y"
+    data["Z"] = "z"
+    data_out=json.dumps(data) #Creamos un objeto tipo JSON
+    print("publish topic",topic, "data out= ",data_out)
+    ret=client.publish(topic,data_out,0) #Publicamos
+    time.sleep(2)
+
+client.disconnect()
