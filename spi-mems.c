@@ -136,11 +136,7 @@ int print_decimal(int num)
 	return len; 
 }
 
-int main(void)
-{
-	int16_t vecs[3];
-	int16_t baseline[3];
-
+void reg(){
 	clock_setup();
 	console_setup(115200); //numero a ingresar en el archivo de comunicacion .py
     spi_setup();
@@ -160,15 +156,22 @@ int main(void)
 	spi_send(SPI5, (1 << GYR_CTRL_REG4_FS_SHIFT));
 	spi_read(SPI5);
 	gpio_set(GPIOC, GPIO1);
+}
+int main(void)
+{
+	int16_t vecs[3];
+	int16_t baseline[3];
+
+	reg();
 
     console_puts("X\tY\tZ\n");
     
 	while (1) {
-        uint8_t temp;
+        uint8_t t;
         uint8_t who;
-        int16_t ejeX;
-        int16_t ejeY;
-        int16_t ejeZ;
+        int16_t X;
+        int16_t Y;
+        int16_t Z;
 
 		gpio_clear(GPIOC, GPIO1);             
 		spi_send(SPI5, GYR_WHO_AM_I | 0x80);
@@ -181,65 +184,68 @@ int main(void)
 		spi_send(SPI5, GYR_STATUS_REG | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		temp=spi_read(SPI5);
+		t=spi_read(SPI5);
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_TEMP | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		temp=spi_read(SPI5);
+		t=spi_read(SPI5);
 		gpio_set(GPIOC, GPIO1);  
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_X_L | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		ejeX=spi_read(SPI5);
+		X=spi_read(SPI5);
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_X_H | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		ejeX|=spi_read(SPI5) << 8;
+		X|=spi_read(SPI5) << 8;
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_Y_L | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		ejeY=spi_read(SPI5);
+		Y=spi_read(SPI5);
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_Y_H | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		ejeY|=spi_read(SPI5) << 8;
+		Y|=spi_read(SPI5) << 8;
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_Z_L | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		ejeZ=spi_read(SPI5);
+		Z=spi_read(SPI5);
 		gpio_set(GPIOC, GPIO1);
 
 		gpio_clear(GPIOC, GPIO1);
 		spi_send(SPI5, GYR_OUT_Z_H | GYR_RNW);
 		spi_read(SPI5);
 		spi_send(SPI5, 0);
-		ejeZ|=spi_read(SPI5) << 8;
+		Z|=spi_read(SPI5) << 8;
 		gpio_set(GPIOC, GPIO1);
 
-        ejeX = ejeX*L3GD20_SENSITIVITY_500DPS;
-        ejeY = ejeY*L3GD20_SENSITIVITY_500DPS;
-        ejeZ = ejeZ*L3GD20_SENSITIVITY_500DPS;
+        X = X*L3GD20_SENSITIVITY_500DPS;
+        Y = Y*L3GD20_SENSITIVITY_500DPS;
+        Z = Z*L3GD20_SENSITIVITY_500DPS;
 
-	    print_decimal(ejeX); console_puts("\t");
-        print_decimal(ejeY); console_puts("\t");
-        print_decimal(ejeZ); console_puts("\n");
+	    print_decimal(X); 
+		console_puts("\t");
+        print_decimal(Y); 
+		console_puts("\t");
+        print_decimal(Z); 
+		console_puts("\n");
 
 		
 	}
