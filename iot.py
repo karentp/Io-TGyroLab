@@ -4,7 +4,7 @@ Para comunicacion por MQTT para dashboard, en este caso ThingsBoard
 """
 
 #Librerias
-
+import csv
 import serial
 import paho.mqtt.client as mqtt
 import time,json
@@ -93,15 +93,31 @@ while not client.connected_flag: #wait in loop
 time.sleep(3)
 data=dict()
 
+X=[]
+Y=[]
+Z=[]
+with open('Datos.csv') as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter=',')
+    line_count = 0
+    for row in csv_reader:
+        X.append(row[0])
+        Y.append(row[1])
+        Z.append(row[2])
+        line_count += 1
+print(X)
+print(Y)
+print(Z)
+cont=0
 fileRead = False
 while(not fileRead): #Hacemos un loop
 
-    data["X"] = "x"
-    data["Y"] = "y"
-    data["Z"] = "z"
+    data["X"] = X[cont]
+    data["Y"] = Y[cont]
+    data["Z"] = Z[cont]
     data_out=json.dumps(data) #Creamos un objeto tipo JSON
     print("publish topic",topic, "data out= ",data_out)
     ret=client.publish(topic,data_out,0) #Publicamos
+    cont+=1
     time.sleep(2)
 
 client.disconnect()
